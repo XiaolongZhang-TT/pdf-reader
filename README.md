@@ -69,9 +69,38 @@ pnpm tauri build --bundles app  # 只生成 .app
 ./scripts/make-dmg.sh  # 只打包已有的 .app
 ```
 
-### 本仓库内的工具链脚本
+### 工具链
 
-此工作区把 Rust 与 Node 工具链放在项目内（`.rustup` / `.cargo` / `.tools`，均已 gitignore），因此可以用：
+Rust 通过 **rustup 全局安装**（方案 B）：
+
+```bash
+# 安装（本机已完成）
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile default
+
+# 国内网络建议配合 rsproxy 镜像：
+# RUSTUP_DIST_SERVER=https://rsproxy.cn RUSTUP_UPDATE_ROOT=https://rsproxy.cn/rustup \
+#   sh -s -- -y --profile default
+
+# 装完后的位置
+~/.cargo/bin/{rustup,cargo,rustc,...}
+~/.rustup/toolchains/stable-aarch64-apple-darwin/
+```
+
+`rustup show` 默认工具链为 `stable-aarch64-apple-darwin`。安装器会把 `~/.cargo/env` 写入 `~/.zshrc`（本机已补上），新终端可直接使用 `cargo`。
+
+项目只使用**全局 rustup 工具链**（`~/.cargo/bin`，无项目内兜底）。`scripts/env.sh` 会加载 `~/.cargo/env`，Node/pnpm 直接使用系统安装版本（Homebrew）。
+
+`.cargo/config.toml` 是 crates.io 镜像（rsproxy）配置，仅保留这一个文件，在本目录下构建时自动生效（未纳入版本控制）。
+
+Node.js 与 pnpm 同样采用全局安装：
+
+```bash
+brew install node pnpm
+node -v     # v26.12.0
+pnpm -v     # 12.14.0
+```
+
+（项目内不再有 `.tools` 适配层。）
 
 ```bash
 ./scripts/dev.sh      # 开发模式

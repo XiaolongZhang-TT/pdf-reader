@@ -1,9 +1,8 @@
 #!/bin/sh
 # Shared environment for local development / builds (source this file).
 #
-# This workspace keeps its toolchains inside the project (`.tools`, `.cargo`,
-# `.rustup`) so builds are self-contained. On a normal machine with Node, pnpm
-# and Rust installed system-wide this script is optional.
+# Rust comes from the global rustup installation (`~/.cargo` + `~/.rustup`).
+# Node.js / pnpm come from Homebrew (or any Node installation on PATH).
 if [ -n "${BASH_SOURCE:-}" ]; then
   _SRC="$BASH_SOURCE"
 else
@@ -11,14 +10,20 @@ else
 fi
 ROOT="$(cd "$(dirname "$_SRC")/.." && pwd)"
 
-export RUSTUP_HOME="$ROOT/.rustup"
-export CARGO_HOME="$ROOT/.cargo"
+# Keep the repo-local crates.io mirror config (`$ROOT/.cargo/config.toml`),
+# which Cargo discovers automatically when building inside this directory.
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
-for _dir in "$ROOT/.tools" "$ROOT/.cargo/bin"; do
-  [ -d "$_dir" ] && PATH="$_dir:$PATH"
-done
+# Fall back to Homebrew's shellenv when node/pnpm are not on PATH yet.
+if ! command -v node >/dev/null 2>&1 && command -v brew >/dev/null 2>&1; then
+  eval "$(brew shellenv)"
+fi
 export PATH
 
-if ! command -v node >/dev/null 2>&1 || ! command -v cargo >/dev/null 2>&1; then
-  echo "提示：未找到 node 或 cargo。本机可安装 Node.js / pnpm / rustup，或把工具链放在 .tools 与 .cargo 下。" >&2
+if ! command -v cargo >/dev/null 2>&1 || ! command -v rustc >/dev/null 2>&1; then
+  echo "未找到 Rust。请先安装 rustup：" >&2
+  echo '  curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile default' >&2
+fi
+if ! command -v node >/dev/null 2>&1 || ! command -v pnpm >/dev/null 2>&1; then
+  echo "未找到 Node.js / pnpm。请安装：brew install node pnpm" >&2
 fi

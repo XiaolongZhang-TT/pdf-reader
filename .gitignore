@@ -5,15 +5,10 @@ src-tauri/target
 src-tauri/gen
 public/pdfjs
 
-# local toolchains (this machine)
+# local crates.io mirror config (.cargo/config.toml)
 .cargo
-.rustup
-.tools
-.pnpm-store
 
 # local data / dev scratch
-.home
-.pylibs
 test-assets
 shots
 *.local

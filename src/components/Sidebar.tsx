@@ -53,6 +53,9 @@ type Props = {
   currentPage: number;
   onJump: (page: number) => void;
   outline: OutlineItem[];
+  activeOutlineId: string | null;
+  expandOutlineIds: Set<string>;
+  onOutlineJump: (id: string, page: number) => void;
   bookmarks: Bookmark[];
   onAddBookmark: () => void;
   onRemoveBookmark: (id: string) => void;
@@ -71,6 +74,9 @@ export function Sidebar({
   currentPage,
   onJump,
   outline,
+  activeOutlineId,
+  expandOutlineIds,
+  onOutlineJump,
   bookmarks,
   onAddBookmark,
   onRemoveBookmark,
@@ -121,8 +127,9 @@ export function Sidebar({
             {tab === "outline" && (
               <OutlinePanel
                 outline={outline}
-                currentPage={currentPage}
-                onJump={onJump}
+                activeId={activeOutlineId}
+                expandIds={expandOutlineIds}
+                onJump={onOutlineJump}
               />
             )}
             {tab === "thumbnails" && (
@@ -178,13 +185,37 @@ function PanelEmpty({
 
 function OutlinePanel({
   outline,
-  currentPage,
+  activeId,
+  expandIds,
   onJump,
 }: {
   outline: OutlineItem[];
-  currentPage: number;
-  onJump: (page: number) => void;
+  activeId: string | null;
+  expandIds: Set<string>;
+  onJump: (id: string, page: number) => void;
 }) {
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    for (const item of outline) initial[item.id] = true;
+    return initial;
+  });
+
+  // Reveal the active entry (and its ancestors) when navigation changes it.
+  useEffect(() => {
+    if (expandIds.size === 0) return;
+    setExpanded((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const id of expandIds) {
+        if (!next[id]) {
+          next[id] = true;
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [expandIds]);
+
   if (!outline.length) {
     return (
       <PanelEmpty
@@ -194,90 +225,59 @@ function OutlinePanel({
       />
     );
   }
-  return (
-    <div className="outline-tree">
-      <OutlineLevel
-        items={outline}
-        depth={0}
-        currentPage={currentPage}
-        onJump={onJump}
-      />
-    </div>
-  );
-}
 
-function OutlineLevel({
-  items,
-  depth,
-  currentPage,
-  onJump,
-}: {
-  items: OutlineItem[];
-  depth: number;
-  currentPage: number;
-  onJump: (page: number) => void;
-}) {
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    for (const item of items) initial[item.id] = depth < 1;
-    return initial;
-  });
-
-  return (
-    <div className={depth > 0 ? "outline-children" : undefined}>
-      {items.map((item) => {
-        const hasChildren = item.children.length > 0;
-        const isOpen = expanded[item.id] ?? false;
-        const isActive = currentPage === item.page;
-        return (
-          <div key={item.id} className="outline-node">
-            <div
-              className={`outline-row ${isActive ? "is-active" : ""}`}
-              style={{ paddingLeft: 8 + depth * 13 }}
-            >
-              {hasChildren ? (
-                <button
-                  type="button"
-                  className="tree-toggle"
-                  onClick={() =>
-                    setExpanded((prev) => ({ ...prev, [item.id]: !isOpen }))
-                  }
-                  aria-label={isOpen ? "收起" : "展开"}
-                >
-                  <Icon
-                    name={isOpen ? "chevronDownSmall" : "chevronRight"}
-                    size={12}
-                  />
-                </button>
-              ) : (
-                <span className="tree-spacer" />
-              )}
+  const rows: React.ReactNode[] = [];
+  const walk = (items: OutlineItem[], depth: number) => {
+    for (const item of items) {
+      const hasChildren = item.children.length > 0;
+      const isOpen = expanded[item.id] ?? false;
+      const isActive = activeId === item.id;
+      rows.push(
+        <div key={item.id} className="outline-node">
+          <div
+            className={`outline-row ${isActive ? "is-active" : ""}`}
+            style={{ paddingLeft: 8 + depth * 13 }}
+          >
+            {hasChildren ? (
               <button
                 type="button"
-                className="outline-link"
-                onClick={() => item.page && onJump(item.page)}
-                title={item.title}
-                disabled={!item.page}
+                className="tree-toggle"
+                onClick={() =>
+                  setExpanded((prev) => ({ ...prev, [item.id]: !isOpen }))
+                }
+                aria-label={isOpen ? "收起" : "展开"}
               >
-                <span className="outline-title">{item.title}</span>
-                {item.page != null && (
-                  <span className="outline-page">{item.page}</span>
-                )}
+                <Icon
+                  name={isOpen ? "chevronDownSmall" : "chevronRight"}
+                  size={12}
+                />
               </button>
-            </div>
-            {hasChildren && isOpen && (
-              <OutlineLevel
-                items={item.children}
-                depth={depth + 1}
-                currentPage={currentPage}
-                onJump={onJump}
-              />
+            ) : (
+              <span className="tree-spacer" />
             )}
+            <button
+              type="button"
+              className="outline-link"
+              onClick={() => item.page && onJump(item.id, item.page)}
+              title={item.title}
+              disabled={!item.page}
+            >
+              <span className="outline-title">{item.title}</span>
+              {item.page != null && (
+                <span className="outline-page">{item.page}</span>
+              )}
+            </button>
           </div>
-        );
-      })}
-    </div>
-  );
+        </div>,
+      );
+      if (hasChildren && isOpen) {
+        walk(item.children, depth + 1);
+      }
+    }
+  };
+  walk(outline, 0);
+
+  return <div className="outline-tree">{rows}</div>;
 }
 
 function ThumbnailsPanel({

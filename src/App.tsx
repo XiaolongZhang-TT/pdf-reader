@@ -18,6 +18,7 @@ import {
 } from "./components/Feedback";
 import type { ToastItem } from "./components/Feedback";
 import { Icon } from "./lib/icons";
+import { flattenOutline, outlinePathIds, pickActiveOutline } from "./lib/outline";
 import { getPageSnippet, openPdf, renderPageCover, searchDocument } from "./lib/pdf";
 import {
   loadAnnotations,
@@ -98,6 +99,7 @@ export default function App() {
   const [customScale, setCustomScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("outline");
+  const [activeOutlineId, setActiveOutlineId] = useState<string | null>(null);
   const [focusNonce, setFocusNonce] = useState(0);
   const [scrollTarget, setScrollTarget] = useState<{
     page: number;
@@ -480,6 +482,14 @@ export default function App() {
   const goPrev = useCallback(() => jumpToPage(pageRef.current - 1), [jumpToPage]);
   const goNext = useCallback(() => jumpToPage(pageRef.current + 1), [jumpToPage]);
 
+  const handleOutlineJump = useCallback(
+    (id: string, page: number) => {
+      setActiveOutlineId(id);
+      jumpToPage(page);
+    },
+    [jumpToPage],
+  );
+
   const zoomBy = useCallback(
     (factor: number) => {
       setZoomMode("custom");
@@ -517,6 +527,30 @@ export default function App() {
       prev.w === width && prev.h === height ? prev : { w: width, h: height },
     );
   }, []);
+
+  /* ------------------------------------------------------------- outline */
+
+  const outlineFlat = useMemo(
+    () => flattenOutline(doc?.outline ?? []),
+    [doc],
+  );
+  const expandOutlineIds = useMemo(
+    () => outlinePathIds(outlineFlat, activeOutlineId),
+    [outlineFlat, activeOutlineId],
+  );
+
+  // Keep exactly one outline entry highlighted, even when many entries point at
+  // the same page (common in long financial reports).
+  useEffect(() => {
+    if (!doc) {
+      setActiveOutlineId(null);
+      return;
+    }
+    setActiveOutlineId((prev) => {
+      const next = pickActiveOutline(outlineFlat, currentPage, prev);
+      return next === prev ? prev : next;
+    });
+  }, [doc, outlineFlat, currentPage]);
 
   /* -------------------------------------------------------------- search */
 
@@ -1154,6 +1188,9 @@ export default function App() {
             currentPage={currentPage}
             onJump={jumpToPage}
             outline={doc.outline}
+            activeOutlineId={activeOutlineId}
+            expandOutlineIds={expandOutlineIds}
+            onOutlineJump={handleOutlineJump}
             bookmarks={bookmarks}
             onAddBookmark={() => void toggleBookmark()}
             onRemoveBookmark={removeBookmark}

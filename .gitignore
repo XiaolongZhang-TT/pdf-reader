@@ -1,0 +1,25 @@
+# dependencies / build output
+node_modules
+dist
+src-tauri/target
+src-tauri/gen
+public/pdfjs
+
+# local toolchains (this machine)
+.cargo
+.rustup
+.tools
+.pnpm-store
+
+# local data / dev scratch
+.home
+.pylibs
+test-assets
+shots
+*.local
+.DS_Store
+.idea
+
+# release artifacts
+*.dmg
+*.zip

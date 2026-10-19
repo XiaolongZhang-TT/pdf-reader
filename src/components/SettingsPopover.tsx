@@ -1,5 +1,12 @@
+import { t } from "../lib/i18n";
 import { Icon } from "../lib/icons";
-import type { PageTheme, Settings, ThemeMode, ViewMode } from "../lib/types";
+import type {
+  LanguageSetting,
+  PageTheme,
+  Settings,
+  ThemeMode,
+  ViewMode,
+} from "../lib/types";
 
 type Props = {
   settings: Settings;
@@ -12,6 +19,12 @@ const THEMES: Array<{ value: ThemeMode; label: string; icon: "sun" | "moon" | "d
   { value: "light", label: "浅色", icon: "sun" },
   { value: "dark", label: "深色", icon: "moon" },
   { value: "system", label: "系统", icon: "display" },
+];
+
+const LANGUAGES: Array<{ value: LanguageSetting; label: string }> = [
+  { value: "system", label: "跟随系统" },
+  { value: "zh", label: "简体中文" },
+  { value: "en", label: "English" },
 ];
 
 const PAGE_THEMES: Array<{ value: PageTheme; label: string }> = [
@@ -38,21 +51,21 @@ const SHORTCUTS: Array<[string, string]> = [
 
 export function SettingsPopover({ settings, version, onChange, onClose }: Props) {
   return (
-    <div className="settings-popover" role="dialog" aria-label="设置">
+    <div className="settings-popover" role="dialog" aria-label={t("设置")}>
       <div className="settings-header">
-        <span>设置</span>
+        <span>{t("设置")}</span>
         <button
           type="button"
           className="mini-icon-button"
           onClick={onClose}
-          aria-label="关闭设置"
+          aria-label={t("取消")}
         >
           <Icon name="close" size={13} />
         </button>
       </div>
 
       <div className="settings-section">
-        <div className="settings-label">外观</div>
+        <div className="settings-label">{t("外观")}</div>
         <div className="segmented">
           {THEMES.map((theme) => (
             <button
@@ -62,14 +75,32 @@ export function SettingsPopover({ settings, version, onChange, onClose }: Props)
               onClick={() => onChange("theme", theme.value)}
             >
               <Icon name={theme.icon} size={14} />
-              {theme.label}
+              {t(theme.label)}
             </button>
           ))}
         </div>
       </div>
 
       <div className="settings-section">
-        <div className="settings-label">页面配色</div>
+        <div className="settings-label">{t("语言")}</div>
+        <div className="segmented">
+          {LANGUAGES.map((language) => (
+            <button
+              key={language.value}
+              type="button"
+              className={`segment ${
+                settings.language === language.value ? "is-active" : ""
+              }`}
+              onClick={() => onChange("language", language.value)}
+            >
+              {t(language.label)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <div className="settings-label">{t("页面配色")}</div>
         <div className="segmented">
           {PAGE_THEMES.map((theme) => (
             <button
@@ -80,14 +111,14 @@ export function SettingsPopover({ settings, version, onChange, onClose }: Props)
               }`}
               onClick={() => onChange("pageTheme", theme.value)}
             >
-              {theme.label}
+              {t(theme.label)}
             </button>
           ))}
         </div>
       </div>
 
       <div className="settings-section">
-        <div className="settings-label">默认视图</div>
+        <div className="settings-label">{t("默认视图")}</div>
         <div className="segmented">
           {VIEW_MODES.map((mode) => (
             <button
@@ -98,7 +129,7 @@ export function SettingsPopover({ settings, version, onChange, onClose }: Props)
               }`}
               onClick={() => onChange("viewMode", mode.value)}
             >
-              {mode.label}
+              {t(mode.label)}
             </button>
           ))}
         </div>
@@ -106,8 +137,8 @@ export function SettingsPopover({ settings, version, onChange, onClose }: Props)
 
       <div className="settings-section row">
         <div>
-          <div className="settings-label">继续上次阅读</div>
-          <div className="settings-description">启动时自动打开最近阅读的文档</div>
+          <div className="settings-label">{t("继续上次阅读")}</div>
+          <div className="settings-description">{t("启动时自动打开最近阅读的文档")}</div>
         </div>
         <button
           type="button"
@@ -125,21 +156,21 @@ export function SettingsPopover({ settings, version, onChange, onClose }: Props)
       </div>
 
       <div className="settings-section">
-        <div className="settings-label">快捷键</div>
+        <div className="settings-label">{t("快捷键")}</div>
         <div className="shortcut-grid">
           {SHORTCUTS.map(([keys, action]) => (
             <div className="shortcut-row" key={keys}>
               <span className="shortcut-keys">{keys}</span>
-              <span className="shortcut-action">{action}</span>
+              <span className="shortcut-action">{t(action)}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="settings-footer">
-        <span>Paper {version}</span>
+        <span>{t("Paper {version}", { version })}</span>
         <span className="dot-separator" />
-        <span>PDF.js 渲染引擎</span>
+        <span>{t("PDF.js 渲染引擎")}</span>
       </div>
     </div>
   );

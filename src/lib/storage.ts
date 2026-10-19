@@ -17,6 +17,7 @@ const KEYS = {
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: "system",
+  language: "system",
   pageTheme: "normal",
   viewMode: "continuous",
   sidebarOpen: true,

@@ -52,7 +52,8 @@
 
 - macOS：半透明侧边栏（vibrancy）、悬浮玻璃工具栏、透明标题栏
 - Windows / Linux：使用系统原生窗口边框
-- 原生菜单、键盘快捷键、全屏、无障碍标签
+- 界面语言：跟随系统 / 简体中文 / English（原生菜单同步切换）
+- 原生菜单、键盘快捷键、全屏、键盘可见焦点、焦点陷阱、减少动态效果支持
 - **纯本地运行**：不发送文档、不上报遥测
 
 ## 开发
@@ -76,12 +77,15 @@ pnpm dev            # 浏览器预览（通过文件选择器打开 PDF）
 ```bash
 pnpm typecheck      # TypeScript
 pnpm test           # Vitest 单元测试
+pnpm test:e2e       # Playwright 端到端测试（首次需 playwright install chromium）
 pnpm build          # 类型检查 + 前端构建
 cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
 cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 ```
 
-CI 会在每次 PR 上运行以上检查，并在 macOS / Windows 上做编译检查。
+`pnpm test:e2e` 使用 `e2e/fixtures/outline.pdf`（4 页、含同页多目录条目）验证目录单选、搜索命中与语言切换；重新生成 fixture 可运行 `python3 scripts/make-fixture-pdf.py`。
+
+CI 会在每次 PR 上运行上述检查、Playwright E2E，并在 macOS / Windows 上做编译检查。
 
 ### 构建安装包
 
@@ -91,7 +95,7 @@ pnpm tauri build
 
 各平台产物位于 `src-tauri/target/release/bundle/`：
 
-- macOS：`macos/Paper.app`、`dmg/Paper_0.1.0_aarch64.dmg`
+- macOS：`macos/Paper.app`、`dmg/Paper_0.2.0_aarch64.dmg`
 - Windows：`msi/`、`nsis/`
 - Linux：`deb/`、`appimage/`
 
@@ -151,10 +155,13 @@ src/
   lib/
     pdf.ts              PDF.js 封装（文档、大纲、文本、搜索、缩略图）
     outline.ts          目录扁平化与唯一 active 条目推导
+    i18n.ts             中英文文案与语言同步
+    focus.ts            模态焦点陷阱
     storage.ts          本地持久化（设置、进度、书签、标注、最近文件）
     platform.ts         Tauri / 浏览器双后端适配
     utils.ts            几何、选区、剪贴板等纯函数
-  styles/global.css     设计系统与全部样式
+  styles/global.css     设计系统、无障碍与全部样式
+e2e/                  Playwright 端到端测试与 fixture PDF
 src-tauri/
   src/lib.rs            Rust 端：文件读取、原生菜单、文件打开事件
   tauri.conf.json       共享配置

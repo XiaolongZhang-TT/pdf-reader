@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { t } from "../lib/i18n";
 import { Icon } from "../lib/icons";
 import { ANNOTATION_COLORS } from "../lib/types";
 import type { Annotation, AnnotationColor } from "../lib/types";
@@ -29,6 +30,8 @@ const TYPE_LABEL: Record<Annotation["type"], string> = {
   strikeout: "删除线",
   note: "便签",
 };
+
+const typeLabel = (type: Annotation["type"]) => t(TYPE_LABEL[type]);
 
 export function AnnotationPopover({
   annotation,
@@ -86,13 +89,13 @@ export function AnnotationPopover({
           className="annotation-type-dot"
           style={{ background: ANNOTATION_COLORS[annotation.color]?.value }}
         />
-        <span className="annotation-type-label">{TYPE_LABEL[annotation.type]}</span>
-        <span className="annotation-page">第 {annotation.page} 页</span>
+        <span className="annotation-type-label">{typeLabel(annotation.type)}</span>
+        <span className="annotation-page">{t("第 {page} 页", { page: annotation.page })}</span>
         <button
           type="button"
           className="mini-icon-button"
           onClick={onClose}
-          aria-label="关闭"
+          aria-label={t("取消")}
         >
           <Icon name="close" size={13} />
         </button>
@@ -113,8 +116,8 @@ export function AnnotationPopover({
               annotation.color === name ? "is-active" : ""
             }`}
             style={{ background: ANNOTATION_COLORS[name].value }}
-            title={ANNOTATION_COLORS[name].label}
-            aria-label={ANNOTATION_COLORS[name].label}
+            title={t(ANNOTATION_COLORS[name].label)}
+            aria-label={t(ANNOTATION_COLORS[name].label)}
             onClick={() => onChangeColor(name)}
           />
         ))}
@@ -124,7 +127,7 @@ export function AnnotationPopover({
         <div className="note-editor">
           <textarea
             className="note-textarea"
-            placeholder="写下你的想法…"
+            placeholder={t("写下你的想法…")}
             value={note}
             autoFocus={annotation.type === "note" && !annotation.note}
             onChange={(event) => setNote(event.target.value)}
@@ -136,7 +139,7 @@ export function AnnotationPopover({
               }
             }}
           />
-          <div className="note-hint">⌘↩ 保存</div>
+          <div className="note-hint">{t("⌘↩ 保存")}</div>
         </div>
       ) : (
         <button
@@ -145,14 +148,14 @@ export function AnnotationPopover({
           onClick={() => setEditingNote(true)}
         >
           <Icon name="pencil" size={13} />
-          添加备注
+          {t("添加备注")}
         </button>
       )}
 
       <div className="annotation-popover-actions">
         <button type="button" className="popover-button" onClick={onCopy}>
           <Icon name="copy" size={13} />
-          复制文字
+          {t("复制文字")}
         </button>
         <button
           type="button"
@@ -160,7 +163,7 @@ export function AnnotationPopover({
           onClick={onDelete}
         >
           <Icon name="trash" size={13} />
-          删除
+          {t("删除")}
         </button>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { t } from "../lib/i18n";
 import { Icon, PaperMark } from "../lib/icons";
 import type { ThemeMode } from "../lib/types";
 
@@ -20,7 +21,11 @@ type Props = {
 const themeIcon = (theme: ThemeMode) =>
   theme === "light" ? "sun" : theme === "dark" ? "moon" : "display";
 const themeLabel = (theme: ThemeMode) =>
-  theme === "light" ? "浅色外观" : theme === "dark" ? "深色外观" : "跟随系统";
+  theme === "light"
+    ? t("浅色外观")
+    : theme === "dark"
+      ? t("深色外观")
+      : t("跟随系统");
 
 export function TitleBar({
   title,
@@ -47,8 +52,8 @@ export function TitleBar({
           type="button"
           className={`icon-button ${sidebarOpen ? "is-active" : ""}`}
           onClick={onToggleSidebar}
-          title="收起/展开侧边栏 ⌘⌥S"
-          aria-label="切换侧边栏"
+          title={t("收起/展开侧边栏 ⌘⌥S")}
+          aria-label={t("侧边栏")}
         >
           <Icon name="sidebar" size={17} />
         </button>
@@ -57,8 +62,8 @@ export function TitleBar({
             type="button"
             className="icon-button"
             onClick={onHome}
-            title="关闭文档 ⌘⇧W"
-            aria-label="关闭文档"
+            title={t("关闭文档 ⌘⇧W")}
+            aria-label={t("关闭文档")}
           >
             <Icon name="chevronLeft" size={17} />
           </button>
@@ -95,8 +100,8 @@ export function TitleBar({
             type="button"
             className="icon-button"
             onClick={onSearch}
-            title="搜索 ⌘F"
-            aria-label="搜索"
+            title={t("搜索 ⌘F")}
+            aria-label={t("搜索")}
           >
             <Icon name="search" size={17} />
           </button>
@@ -105,8 +110,8 @@ export function TitleBar({
           type="button"
           className="icon-button"
           onClick={onCycleTheme}
-          title={`${themeLabel(theme)}（点击切换）`}
-          aria-label="切换外观"
+          title={t("{label}（点击切换）", { label: themeLabel(theme) })}
+          aria-label={t("切换外观")}
         >
           <Icon name={themeIcon(theme)} size={17} />
         </button>
@@ -115,8 +120,8 @@ export function TitleBar({
           className={`icon-button ${settingsOpen ? "is-active" : ""}`}
           onClick={onToggleSettings}
           data-settings-trigger=""
-          title="设置"
-          aria-label="设置"
+          title={t("设置")}
+          aria-label={t("设置")}
         >
           <Icon name="settings" size={17} />
         </button>
@@ -124,10 +129,10 @@ export function TitleBar({
           type="button"
           className="open-button"
           onClick={onOpenFile}
-          title="打开 PDF ⌘O"
+          title={t("打开 PDF ⌘O")}
         >
           <Icon name="folder" size={15} />
-          <span>打开</span>
+          <span>{t("打开")}</span>
         </button>
       </div>
     </header>

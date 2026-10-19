@@ -18,6 +18,7 @@ import {
 } from "./components/Feedback";
 import type { ToastItem } from "./components/Feedback";
 import { Icon } from "./lib/icons";
+import { getLocale, syncLocale, t } from "./lib/i18n";
 import { flattenOutline, outlinePathIds, pickActiveOutline } from "./lib/outline";
 import { getPageSnippet, openPdf, renderPageCover, searchDocument } from "./lib/pdf";
 import {
@@ -48,6 +49,7 @@ import {
   revealInFinder,
   takePendingFiles,
   toggleFullscreen,
+  setMenuLanguage,
   onMenuAction,
   diag,
 } from "./lib/platform";
@@ -130,7 +132,8 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [dropActive, setDropActive] = useState(false);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
-  const [version, setVersion] = useState("0.1.0");
+  const [version, setVersion] = useState("0.2.0");
+  const [, setLocaleTick] = useState(0);
 
   const docRef = useRef<LoadedDoc | null>(null);
   const pageRef = useRef(1);
@@ -170,6 +173,8 @@ export default function App() {
     bookmarksRef.current = bookmarks;
   }, [bookmarks]);
 
+  syncLocale(settings.language);
+
   const toast = useCallback(
     (message: string, kind: ToastItem["kind"] = "info", icon?: ToastItem["icon"]) => {
       const id = uid("toast");
@@ -182,6 +187,19 @@ export default function App() {
   );
 
   /* ---------------------------------------------------------------- theme */
+
+  useEffect(() => {
+    document.documentElement.lang = getLocale() === "zh" ? "zh-CN" : "en";
+    void setMenuLanguage(getLocale());
+  }, [settings.language]);
+
+  // Re-render when the OS language changes while "follow system" is active.
+  useEffect(() => {
+    if (settings.language !== "system") return;
+    const onChange = () => setLocaleTick((tick) => tick + 1);
+    window.addEventListener("languagechange", onChange);
+    return () => window.removeEventListener("languagechange", onChange);
+  }, [settings.language]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -235,14 +253,14 @@ export default function App() {
       setLoadingState({
         active: true,
         progress: null,
-        title: "正在打开文档",
+        title: t("正在打开文档"),
         subtitle: basename(path),
       });
 
       try {
         const bytes = await readFileBytes(path);
         if (token !== loadTokenRef.current) return;
-        setLoadingState((prev) => ({ ...prev, title: "正在解析 PDF" }));
+        setLoadingState((prev) => ({ ...prev, title: t("正在解析 PDF") }));
         const opened = await openPdf(bytes, {
           onProgress: (loaded, total) => {
             if (token !== loadTokenRef.current) return;
@@ -325,7 +343,7 @@ export default function App() {
         diag(
           `document-opened name=${displayName(path)} pages=${opened.numPages} outline=${opened.outline.length} labels=${opened.labels.length} storage=${storageAvailable()}`,
         );
-        toast(`已打开 ${displayName(path)}`, "success", "check");
+        toast(t("已打开 {name}", { name: displayName(path) }), "success", "check");
         void renderPageCover(opened.pdf, 1, 240).then((cover) => {
           if (!cover) return;
           updateRecent(path, { cover });
@@ -342,7 +360,7 @@ export default function App() {
         diag(`open-error ${String((error as Error)?.message ?? error)}`);
         if (!options.quiet) {
           console.warn("openDocument failed", error);
-          toast("无法打开这个 PDF，文件可能已损坏或被移动", "error");
+          toast(t("无法打开这个 PDF，文件可能已损坏或被移动"), "error");
           removeRecent(path);
           setRecents(loadRecents());
         } else {
@@ -387,7 +405,7 @@ export default function App() {
       if (paths[0]) await openDocument(paths[0]);
     } catch (error) {
       console.warn(error);
-      toast("无法打开文件选择器", "error");
+      toast(t("无法打开文件选择器"), "error");
     }
   }, [openDocument, toast]);
 
@@ -587,7 +605,7 @@ export default function App() {
           setActiveSearchPage(hits[0].page);
           jumpToPage(hits[0].page);
         } else {
-          toast(`没有找到“${truncate(query, 24)}”`, "info");
+          toast(t("没有找到“{query}”", { query: truncate(query, 24) }), "info");
         }
       } catch (error) {
         if (token !== searchToken.current) return;
@@ -667,10 +685,10 @@ export default function App() {
       } else {
         toast(
           type === "highlight"
-            ? "已添加高亮"
+            ? t("已添加高亮")
             : type === "underline"
-              ? "已添加下划线"
-              : "已添加删除线",
+              ? t("已添加下划线")
+              : t("已添加删除线"),
           "success",
         );
       }
@@ -708,7 +726,7 @@ export default function App() {
       setActiveAnnotation((prev) =>
         prev && prev.annotation.id === id ? null : prev,
       );
-      toast("已删除标注");
+      toast(t("已删除标注"));
     },
     [commitAnnotations, toast],
   );
@@ -716,7 +734,7 @@ export default function App() {
   const undo = useCallback(() => {
     const op = undoStack.current.pop();
     if (!op) {
-      toast("没有可撤销的标注操作");
+      toast(t("没有可撤销的标注操作"));
       return;
     }
     if (op.kind === "add") {
@@ -726,10 +744,10 @@ export default function App() {
         ),
       );
       setActiveAnnotation(null);
-      toast("已撤销标注");
+      toast(t("已撤销标注"));
     } else {
       commitAnnotations([...annotationsRef.current, op.annotation]);
-      toast("已恢复标注");
+      toast(t("已恢复标注"));
     }
   }, [commitAnnotations, toast]);
 
@@ -757,7 +775,7 @@ export default function App() {
   const copySelection = useCallback(async () => {
     if (!selection?.text) return;
     const ok = await copyText(selection.text);
-    toast(ok ? "已复制文字" : "复制失败", ok ? "success" : "error");
+    toast(ok ? t("已复制文字") : t("复制失败"), ok ? "success" : "error");
     setSelection(null);
     window.getSelection()?.removeAllRanges();
   }, [selection, toast]);
@@ -773,10 +791,10 @@ export default function App() {
       commitBookmarks(
         bookmarksRef.current.filter((item) => item.id !== existing.id),
       );
-      toast("已移除书签");
+      toast(t("已移除书签"));
       return;
     }
-    let label = `第 ${page} 页`;
+    let label = t("第 {page} 页", { page });
     try {
       const snippet = await getPageSnippet(current.pdf, page, 46);
       if (snippet) label = snippet;
@@ -790,13 +808,13 @@ export default function App() {
       createdAt: Date.now(),
     };
     commitBookmarks([...bookmarksRef.current, bookmark]);
-    toast("已添加书签", "success", "bookmarkFilled");
+    toast(t("已添加书签"), "success", "bookmarkFilled");
   }, [commitBookmarks, toast]);
 
   const removeBookmark = useCallback(
     (id: string) => {
       commitBookmarks(bookmarksRef.current.filter((item) => item.id !== id));
-      toast("已移除书签");
+      toast(t("已移除书签"));
     },
     [commitBookmarks, toast],
   );
@@ -1160,7 +1178,13 @@ export default function App() {
   const title = doc
     ? doc.info.title?.trim() || stripExtension(doc.name)
     : "Paper";
-  const subtitle = doc ? `${doc.name} · 第 ${pageLabel} / ${doc.numPages} 页` : undefined;
+  const subtitle = doc
+    ? t("{name} · 第 {page} / {total} 页", {
+        name: doc.name,
+        page: pageLabel,
+        total: doc.numPages,
+      })
+    : undefined;
 
   return (
     <div className={`app ${doc ? "has-doc" : "is-home"}`}>
@@ -1299,7 +1323,7 @@ export default function App() {
                 activeAnnotation.annotation.note ||
                 "",
             ).then((ok) =>
-              toast(ok ? "已复制文字" : "复制失败", ok ? "success" : "error"),
+              toast(ok ? t("已复制文字") : t("复制失败"), ok ? "success" : "error"),
             )
           }
           onClose={() => setActiveAnnotation(null)}

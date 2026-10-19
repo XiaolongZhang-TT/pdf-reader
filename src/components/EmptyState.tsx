@@ -1,4 +1,5 @@
 import iconUrl from "../assets/icon.png";
+import { t } from "../lib/i18n";
 import { Icon } from "../lib/icons";
 import type { RecentFile } from "../lib/types";
 import { formatRelativeTime, stripExtension } from "../lib/utils";
@@ -31,23 +32,23 @@ export function EmptyState({
             draggable={false}
           />
           <h1>Paper</h1>
-          <p>安静、专注的 PDF 阅读器</p>
+          <p>{t("安静、专注的 PDF 阅读器")}</p>
         </div>
 
         <div className="empty-actions">
           <button type="button" className="primary-button" onClick={onOpen}>
             <Icon name="folder" size={17} />
-            打开 PDF
+            {t("打开 PDF")}
             <kbd>⌘O</kbd>
           </button>
-          <span className="empty-hint">也可以把 PDF 文件拖到这里</span>
+          <span className="empty-hint">{t("也可以把 PDF 文件拖到这里")}</span>
         </div>
 
         {recents.length > 0 && (
           <section className="recent-section">
             <div className="recent-heading">
               <Icon name="clock" size={14} />
-              <span>最近打开</span>
+              <span>{t("最近打开")}</span>
             </div>
             <div className="recent-grid">
               {recents.slice(0, 6).map((file) => (
@@ -76,7 +77,7 @@ export function EmptyState({
                       <button
                         type="button"
                         className="mini-button"
-                        title="在访达中显示"
+                        title={t("在访达中显示")}
                         onClick={(event) => {
                           event.stopPropagation();
                           onRevealRecent(file.path);
@@ -87,7 +88,7 @@ export function EmptyState({
                       <button
                         type="button"
                         className="mini-button"
-                        title="从最近列表中移除"
+                        title={t("从最近列表中移除")}
                         onClick={(event) => {
                           event.stopPropagation();
                           onRemoveRecent(file.path);
@@ -102,8 +103,11 @@ export function EmptyState({
                       {stripExtension(file.name)}
                     </div>
                     <div className="recent-sub">
-                      第 {file.page ?? 1} / {file.total ?? "?"} 页 ·{" "}
-                      {formatRelativeTime(file.openedAt)}
+                      {t("第 {page} / {total} 页 · {time}", {
+                        page: file.page ?? 1,
+                        total: file.total ?? "?",
+                        time: formatRelativeTime(file.openedAt),
+                      })}
                     </div>
                   </div>
                 </div>
@@ -113,9 +117,9 @@ export function EmptyState({
         )}
 
         <div className="empty-footer">
-          <span>支持 macOS · Windows · Linux</span>
+          <span>{t("支持 macOS · Windows · Linux")}</span>
           <span className="dot-separator" />
-          <span>基于 PDF.js 渲染</span>
+          <span>{t("基于 PDF.js 渲染")}</span>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import type {
   SelectionInfo,
 } from "../lib/types";
 import { ANNOTATION_COLORS } from "../lib/types";
+import { t } from "../lib/i18n";
 import { diag } from "../lib/platform";
 import { mergeRects } from "../lib/utils";
 
@@ -317,7 +318,7 @@ export function PageView({
               borderColor: color.value,
               color: color.value,
             }}
-            title={ann.note?.trim() || "便签"}
+            title={ann.note?.trim() || t("便签")}
             onClick={(event) => {
               event.stopPropagation();
               const el = event.currentTarget as HTMLElement;
@@ -391,7 +392,7 @@ export function PageView({
           ref={canvasRef}
           className="page-canvas"
           style={{ width, height }}
-          aria-label={`第 ${label} 页`}
+          aria-label={t("第 {page} 页", { page: label })}
         />
         <div
           ref={textRef}
@@ -402,7 +403,7 @@ export function PageView({
         <div className="page-annotation-layer">{annotationNodes}</div>
         {!ready && (
           <div className="page-skeleton" style={{ width, height }}>
-            <span>第 {label} 页</span>
+            <span>{t("第 {page} 页", { page: label })}</span>
           </div>
         )}
       </div>

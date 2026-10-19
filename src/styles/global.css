@@ -2284,3 +2284,33 @@ html[data-theme="dark"] .home-glow {
 [data-tauri-drag-region] {
   cursor: default;
 }
+
+/* =========================================================================
+   Accessibility
+   ========================================================================= */
+
+:where(button, a, input, textarea, select, [role="button"], [tabindex]) {
+  outline-offset: 2px;
+}
+
+:where(button, a, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.page-input:focus-visible,
+.search-input:focus-visible,
+.note-textarea:focus-visible,
+.text-input:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

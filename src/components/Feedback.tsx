@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "../lib/focus";
+import { t } from "../lib/i18n";
 import { Icon, PaperMark } from "../lib/icons";
 import type { IconName } from "../lib/icons";
 
@@ -48,8 +50,8 @@ export function DropOverlay({ active }: { active: boolean }) {
     <div className="drop-overlay">
       <div className="drop-card">
         <Icon name="file" size={38} strokeWidth={1.3} />
-        <div className="drop-title">松开以打开 PDF</div>
-        <div className="drop-subtitle">文件只会在本机打开，不会上传</div>
+        <div className="drop-title">{t("松开以打开 PDF")}</div>
+        <div className="drop-subtitle">{t("文件只会在本机打开，不会上传")}</div>
       </div>
     </div>
   );
@@ -94,6 +96,7 @@ export function PasswordPrompt({
 }) {
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const cardRef = useFocusTrap<HTMLDivElement>(open);
 
   useEffect(() => {
     if (open) {
@@ -108,19 +111,21 @@ export function PasswordPrompt({
   return (
     <div className="modal-backdrop" onMouseDown={onCancel}>
       <div
+        ref={cardRef}
         className="modal-card"
         onMouseDown={(event) => event.stopPropagation()}
         role="dialog"
-        aria-label="需要密码"
+        aria-modal="true"
+        aria-label={t("需要密码")}
       >
         <div className="modal-icon">
           <Icon name="info" size={22} />
         </div>
-        <h2>此文档已加密</h2>
+        <h2>{t("此文档已加密")}</h2>
         <p>
           {incorrect
-            ? "密码不正确，请重试。"
-            : "请输入打开该 PDF 所需的密码。"}
+            ? t("密码不正确，请重试。")
+            : t("请输入打开该 PDF 所需的密码。")}
         </p>
         <input
           ref={inputRef}
@@ -132,18 +137,18 @@ export function PasswordPrompt({
             if (event.key === "Enter") onSubmit(value);
             if (event.key === "Escape") onCancel();
           }}
-          placeholder="密码"
+          placeholder={t("密码")}
         />
         <div className="modal-actions">
           <button type="button" className="ghost-button" onClick={onCancel}>
-            取消
+            {t("取消")}
           </button>
           <button
             type="button"
             className="primary-button compact"
             onClick={() => onSubmit(value)}
           >
-            解锁
+            {t("解锁")}
           </button>
         </div>
       </div>

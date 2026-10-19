@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { t } from "../lib/i18n";
 import { Icon } from "../lib/icons";
 import type { IconName } from "../lib/icons";
 import { renderPageThumb } from "../lib/pdf";
@@ -99,7 +100,7 @@ export function Sidebar({
               aria-selected={tab === item.id}
               className={`sidebar-tab ${tab === item.id ? "is-active" : ""}`}
               onClick={() => onTab(item.id)}
-              title={item.label}
+              title={t(item.label)}
             >
               <Icon name={item.icon} size={16} />
             </button>
@@ -109,8 +110,8 @@ export function Sidebar({
           type="button"
           className="icon-button subtle"
           onClick={onClose}
-          title="收起侧边栏"
-          aria-label="收起侧边栏"
+          title={t("收起侧边栏")}
+          aria-label={t("收起侧边栏")}
         >
           <Icon name="chevronLeft" size={15} />
         </button>
@@ -120,7 +121,7 @@ export function Sidebar({
         {!doc ? (
           <div className="panel-empty">
             <Icon name="file" size={26} />
-            <p>打开一个 PDF 开始阅读</p>
+            <p>{t("打开一个 PDF 开始阅读")}</p>
           </div>
         ) : (
           <>
@@ -220,8 +221,8 @@ function OutlinePanel({
     return (
       <PanelEmpty
         icon="list"
-        title="此文档没有目录"
-        description="可以使用缩略图或搜索来导航"
+        title={t("此文档没有目录")}
+        description={t("可以使用缩略图或搜索来导航")}
       />
     );
   }
@@ -245,7 +246,7 @@ function OutlinePanel({
                 onClick={() =>
                   setExpanded((prev) => ({ ...prev, [item.id]: !isOpen }))
                 }
-                aria-label={isOpen ? "收起" : "展开"}
+                aria-label={isOpen ? t("收起") : t("展开")}
               >
                 <Icon
                   name={isOpen ? "chevronDownSmall" : "chevronRight"}
@@ -260,6 +261,7 @@ function OutlinePanel({
               className="outline-link"
               onClick={() => item.page && onJump(item.id, item.page)}
               title={item.title}
+              aria-current={isActive ? "page" : undefined}
               disabled={!item.page}
             >
               <span className="outline-title">{item.title}</span>
@@ -361,7 +363,7 @@ function Thumbnail({
       type="button"
       className={`thumbnail ${active ? "is-active" : ""}`}
       onClick={onClick}
-      aria-label={`第 ${page} 页`}
+      aria-label={t("第 {page} 页", { page })}
     >
       <div
         className="thumbnail-frame"
@@ -407,7 +409,7 @@ function SearchPanel({
           ref={inputRef}
           className="search-input"
           value={query}
-          placeholder="在文档中搜索…"
+          placeholder={t("在文档中搜索…")}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
@@ -423,7 +425,7 @@ function SearchPanel({
             type="button"
             className="mini-icon-button"
             onClick={() => setQuery("")}
-            aria-label="清空搜索"
+            aria-label={t("清空搜索")}
           >
             <Icon name="close" size={12} />
           </button>
@@ -432,7 +434,7 @@ function SearchPanel({
 
       {searching && (
         <div className="search-status">
-          正在搜索… {Math.round(progress * 100)}%
+          {t("正在搜索… {percent}%", { percent: Math.round(progress * 100) })}
         </div>
       )}
 
@@ -440,8 +442,8 @@ function SearchPanel({
         <div className="search-summary">
           <span>
             {results.length > 0
-              ? `${results.length} 个结果`
-              : "没有找到匹配内容"}
+              ? t("{count} 个结果", { count: results.length })
+              : t("没有找到匹配内容")}
           </span>
           {results.length > 0 && (
             <div className="search-nav">
@@ -449,7 +451,7 @@ function SearchPanel({
                 type="button"
                 className="mini-icon-button"
                 onClick={onPrev}
-                aria-label="上一个结果"
+                aria-label={t("上一个结果")}
               >
                 <Icon name="chevronUp" size={13} />
               </button>
@@ -460,7 +462,7 @@ function SearchPanel({
                 type="button"
                 className="mini-icon-button"
                 onClick={onNext}
-                aria-label="下一个结果"
+                aria-label={t("下一个结果")}
               >
                 <Icon name="chevronDown" size={13} />
               </button>
@@ -477,7 +479,7 @@ function SearchPanel({
             className={`search-result ${index === activeIndex ? "is-active" : ""}`}
             onClick={() => onSelect(index)}
           >
-            <span className="search-result-page">第 {hit.page} 页</span>
+            <span className="search-result-page">{t("第 {page} 页", { page: hit.page })}</span>
             <span className="search-result-snippet">
               {highlight(hit.snippet, query)}
             </span>
@@ -528,13 +530,13 @@ function BookmarksPanel({
         onClick={onAdd}
       >
         <Icon name={hasCurrent ? "bookmarkFilled" : "bookmark"} size={14} />
-        {hasCurrent ? "移除当前页书签" : "为当前页添加书签"}
+        {hasCurrent ? t("移除当前页书签") : t("为当前页添加书签")}
       </button>
       {bookmarks.length === 0 ? (
         <PanelEmpty
           icon="bookmark"
-          title="还没有书签"
-          description="按 ⌘D 或点击上方按钮添加"
+          title={t("还没有书签")}
+          description={t("按 {shortcut} 或点击上方按钮添加", { shortcut: "⌘D" })}
         />
       ) : (
         <div className="bookmark-list">
@@ -546,7 +548,7 @@ function BookmarksPanel({
                 onClick={() => onJump(bookmark.page)}
                 title={bookmark.label}
               >
-                <span className="bookmark-page">第 {bookmark.page} 页</span>
+                <span className="bookmark-page">{t("第 {page} 页", { page: bookmark.page })}</span>
                 <span className="bookmark-label">
                   {truncate(bookmark.label, 60)}
                 </span>
@@ -558,8 +560,8 @@ function BookmarksPanel({
                 type="button"
                 className="mini-icon-button bookmark-remove"
                 onClick={() => onRemove(bookmark.id)}
-                aria-label="删除书签"
-                title="删除书签"
+                aria-label={t("删除书签")}
+                title={t("删除书签")}
               >
                 <Icon name="close" size={12} />
               </button>
@@ -598,8 +600,8 @@ function AnnotationsPanel({
     return (
       <PanelEmpty
         icon="notes"
-        title="还没有标注"
-        description="选中文字后即可高亮、划线或添加便签"
+        title={t("还没有标注")}
+        description={t("选中文字后即可高亮、划线或添加便签")}
       />
     );
   }
@@ -607,7 +609,10 @@ function AnnotationsPanel({
   return (
     <div className="annotations-panel">
       <div className="annotation-count">
-        共 {sorted.length} 条标注 · {new Set(sorted.map((a) => a.page)).size} 页
+        {t("共 {count} 条标注 · {pages} 页", {
+          count: sorted.length,
+          pages: new Set(sorted.map((a) => a.page)).size,
+        })}
       </div>
       {sorted.map((annotation) => (
         <div key={annotation.id} className="annotation-row">
@@ -629,10 +634,13 @@ function AnnotationsPanel({
               <span className="annotation-excerpt">
                 {annotation.note?.trim()
                   ? truncate(annotation.note, 90)
-                  : truncate(annotation.text || "（无文字）", 90)}
+                  : truncate(annotation.text || t("（无文字）"), 90)}
               </span>
               <span className="annotation-meta">
-                第 {annotation.page} 页 · {annotation.type === "note" ? "便签" : "标注"}
+                {t("第 {page} 页 · {type}", {
+                  page: annotation.page,
+                  type: t(annotation.type === "note" ? "便签" : "标注"),
+                })}
               </span>
             </span>
           </button>
@@ -640,8 +648,8 @@ function AnnotationsPanel({
             type="button"
             className="mini-icon-button annotation-remove"
             onClick={() => onRemove(annotation.id)}
-            aria-label="删除标注"
-            title="删除标注"
+            aria-label={t("删除标注")}
+            title={t("删除标注")}
           >
             <Icon name="trash" size={12} />
           </button>

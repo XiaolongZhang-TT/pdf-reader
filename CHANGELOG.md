@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-19
+
+### Added
+
+- Interface language switch (follow system / 中文 / English) with a native menu
+  that rebuilds in the selected language
+- Playwright end-to-end tests for outline selection, search and language
+  switching, plus a generated multi-page fixture PDF
+- Visible keyboard focus styles, a focus trap in the password dialog and
+  `prefers-reduced-motion` support
+- CI job for end-to-end tests
+- Checksums for release artifacts
+- Contributor documentation, issue/PR templates and Dependabot
+
+### Changed
+
+- Bundle identifier is now `io.github.xiaolongzhangtt.pdfreader`
+- Shared Tauri configuration no longer contains macOS-only window chrome;
+  platform overrides live in `tauri.macos.conf.json`, `tauri.windows.conf.json`
+  and `tauri.linux.conf.json`
+- Native menu is cross-platform and localised
+- Removed unused mobile icons
+
 ## [0.1.0] - 2026-10-19
 
 ### Added

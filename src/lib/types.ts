@@ -49,6 +49,8 @@ export type RecentFile = {
 
 export type SidebarTab = "outline" | "thumbnails" | "search" | "bookmarks" | "annotations";
 export type ThemeMode = "system" | "light" | "dark";
+export type LanguageSetting = "system" | "zh" | "en";
+export type Locale = "zh" | "en";
 export type PageTheme = "normal" | "sepia" | "night";
 export type ViewMode = "continuous" | "single";
 export type ZoomMode = "fit-width" | "fit-page" | "custom";
@@ -62,6 +64,7 @@ export type SelectionInfo = {
 
 export type Settings = {
   theme: ThemeMode;
+  language: LanguageSetting;
   pageTheme: PageTheme;
   viewMode: ViewMode;
   sidebarOpen: boolean;

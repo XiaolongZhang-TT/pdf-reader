@@ -2,7 +2,11 @@ import { Component, StrictMode } from "react";
 import type { ErrorInfo, ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { syncLocale, t } from "./lib/i18n";
+import { loadSettings } from "./lib/storage";
 import "./styles/global.css";
+
+syncLocale(loadSettings().language);
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -23,14 +27,14 @@ class ErrorBoundary extends Component<
       return (
         <div className="crash-screen">
           <div className="crash-card">
-            <h1>Paper 遇到了一点问题</h1>
+            <h1>{t("Paper 遇到了一点问题")}</h1>
             <p>{this.state.error.message}</p>
             <button
               type="button"
               className="primary-button"
               onClick={() => window.location.reload()}
             >
-              重新载入
+              {t("重新载入")}
             </button>
           </div>
         </div>

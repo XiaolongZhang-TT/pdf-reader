@@ -57,7 +57,9 @@ Get the latest build from [Releases](https://github.com/XiaolongZhang-TT/pdf-rea
 - macOS: translucent sidebar (vibrancy), floating glass toolbar, transparent
   title bar
 - Windows / Linux: native window frame
-- Native menu bar, keyboard shortcuts, fullscreen, accessible labels
+- Interface language: follow system / 中文 / English (native menu switches too)
+- Native menu bar, keyboard shortcuts, fullscreen, visible keyboard focus,
+  focus trap in modals and reduced-motion support
 - **Local-first**: no document upload, no telemetry, no account
 
 ## Development
@@ -81,12 +83,17 @@ pnpm dev            # browser preview (open PDFs through the file picker)
 ```bash
 pnpm typecheck
 pnpm test
+pnpm test:e2e
 pnpm build
 cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
 cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 ```
 
-CI runs these on every pull request and compile-checks macOS and Windows.
+CI runs these checks and the Playwright E2E suite on every pull request, and
+compile-checks macOS and Windows. The E2E suite uses
+`e2e/fixtures/outline.pdf` and covers single-outline-selection, search and
+language switching. Regenerate the fixture with
+`python3 scripts/make-fixture-pdf.py`.
 
 ### Packaging
 
@@ -96,7 +103,7 @@ pnpm tauri build
 
 Artifacts land in `src-tauri/target/release/bundle/`:
 
-- macOS: `macos/Paper.app`, `dmg/Paper_0.1.0_aarch64.dmg`
+- macOS: `macos/Paper.app`, `dmg/Paper_0.2.0_aarch64.dmg`
 - Windows: `msi/`, `nsis/`
 - Linux: `deb/`, `appimage/`
 
@@ -145,10 +152,13 @@ src/
   lib/
     pdf.ts              PDF.js wrapper (document, outline, text, search, thumbs)
     outline.ts          outline flattening and single active entry selection
+    i18n.ts             Chinese/English strings and locale sync
+    focus.ts            modal focus trap
     storage.ts          local persistence (settings, progress, bookmarks, annotations)
     platform.ts         Tauri / browser adapters
     utils.ts            geometry, selection and clipboard helpers
-  styles/global.css     design tokens and styles
+  styles/global.css     design tokens, accessibility and styles
+e2e/                  Playwright end-to-end tests and fixture PDF
 src-tauri/
   src/lib.rs            file reading, native menu, file-open events
   tauri.conf.json       shared config

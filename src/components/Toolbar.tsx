@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { t } from "../lib/i18n";
 import { Icon } from "../lib/icons";
 import type { PageTheme, ViewMode, ZoomMode } from "../lib/types";
 
@@ -27,7 +28,11 @@ type Props = {
 const pageThemeIcon = (theme: PageTheme) =>
   theme === "night" ? "moon" : theme === "sepia" ? "sun" : "file";
 const pageThemeLabel = (theme: PageTheme) =>
-  theme === "night" ? "夜间页面" : theme === "sepia" ? "护眼纸张" : "原始页面";
+  theme === "night"
+    ? t("夜间页面")
+    : theme === "sepia"
+      ? t("护眼纸张")
+      : t("原始页面");
 
 export function Toolbar({
   page,
@@ -66,15 +71,15 @@ export function Toolbar({
   };
 
   return (
-    <div className="toolbar" role="toolbar" aria-label="阅读工具栏">
+    <div className="toolbar" role="toolbar" aria-label={t("阅读工具栏")}>
       <div className="toolbar-group">
         <button
           type="button"
           className="toolbar-button"
           onClick={onPrev}
           disabled={page <= 1}
-          title="上一页 ←"
-          aria-label="上一页"
+          title={t("上一页 ←")}
+          aria-label={t("上一页")}
         >
           <Icon name="chevronLeft" size={16} />
         </button>
@@ -95,7 +100,7 @@ export function Toolbar({
               event.currentTarget.blur();
             }
           }}
-          aria-label="页码"
+          aria-label={t("页码")}
         />
         <span className="toolbar-total">/ {total}</span>
         <button
@@ -103,8 +108,8 @@ export function Toolbar({
           className="toolbar-button"
           onClick={onNext}
           disabled={page >= total}
-          title="下一页 →"
-          aria-label="下一页"
+          title={t("下一页 →")}
+          aria-label={t("下一页")}
         >
           <Icon name="chevronRight" size={16} />
         </button>
@@ -117,8 +122,8 @@ export function Toolbar({
           type="button"
           className="toolbar-button"
           onClick={onZoomOut}
-          title="缩小 ⌘-"
-          aria-label="缩小"
+          title={t("缩小 ⌘-")}
+          aria-label={t("缩小")}
         >
           <Icon name="minus" size={15} />
         </button>
@@ -126,7 +131,7 @@ export function Toolbar({
           type="button"
           className="zoom-value"
           onClick={onActualSize}
-          title="实际大小 ⌘0"
+          title={t("实际大小 ⌘0")}
         >
           {zoomPercent}%
         </button>
@@ -134,8 +139,8 @@ export function Toolbar({
           type="button"
           className="toolbar-button"
           onClick={onZoomIn}
-          title="放大 ⌘+"
-          aria-label="放大"
+          title={t("放大 ⌘+")}
+          aria-label={t("放大")}
         >
           <Icon name="plus" size={15} />
         </button>
@@ -148,8 +153,8 @@ export function Toolbar({
           type="button"
           className={`toolbar-button ${zoomMode === "fit-width" ? "is-active" : ""}`}
           onClick={onFitWidth}
-          title="适合宽度 ⌘9"
-          aria-label="适合宽度"
+          title={t("适合宽度 ⌘9")}
+          aria-label={t("适合宽度")}
         >
           <Icon name="fitWidth" size={16} />
         </button>
@@ -157,8 +162,8 @@ export function Toolbar({
           type="button"
           className={`toolbar-button ${zoomMode === "fit-page" ? "is-active" : ""}`}
           onClick={onFitPage}
-          title="适合页面 ⌘8"
-          aria-label="适合页面"
+          title={t("适合页面 ⌘8")}
+          aria-label={t("适合页面")}
         >
           <Icon name="fitPage" size={15} />
         </button>
@@ -166,8 +171,8 @@ export function Toolbar({
           type="button"
           className="toolbar-button"
           onClick={onRotate}
-          title={`旋转 90°（当前 ${rotation}°）`}
-          aria-label="旋转"
+          title={t("旋转 90°（当前 {rotation}°）", { rotation })}
+          aria-label={t("旋转")}
         >
           <Icon name="rotate" size={16} />
         </button>
@@ -175,8 +180,12 @@ export function Toolbar({
           type="button"
           className="toolbar-button"
           onClick={onToggleViewMode}
-          title={viewMode === "continuous" ? "切换到单页视图" : "切换到连续视图"}
-          aria-label="切换视图"
+          title={
+            viewMode === "continuous"
+              ? t("切换到单页视图")
+              : t("切换到连续视图")
+          }
+          aria-label={t("切换视图")}
         >
           <Icon
             name={viewMode === "continuous" ? "singlePage" : "continuous"}
@@ -187,8 +196,8 @@ export function Toolbar({
           type="button"
           className="toolbar-button"
           onClick={onCyclePageTheme}
-          title={`${pageThemeLabel(pageTheme)}（点击切换）`}
-          aria-label="切换页面配色"
+          title={t("{label}（点击切换）", { label: pageThemeLabel(pageTheme) })}
+          aria-label={t("切换页面配色")}
         >
           <Icon name={pageThemeIcon(pageTheme)} size={16} />
         </button>

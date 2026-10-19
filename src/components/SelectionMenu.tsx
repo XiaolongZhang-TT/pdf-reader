@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { t } from "../lib/i18n";
 import { Icon } from "../lib/icons";
 import { ANNOTATION_COLORS } from "../lib/types";
 import type { AnnotationColor, SelectionInfo } from "../lib/types";
@@ -62,15 +63,15 @@ export function SelectionMenu({
       onMouseDown={(event) => event.preventDefault()}
       onMouseUp={(event) => event.stopPropagation()}
     >
-      <div className="selection-colors" role="group" aria-label="高亮颜色">
+      <div className="selection-colors" role="group" aria-label={t("高亮颜色")}>
         {COLORS.map((name) => (
           <button
             key={name}
             type="button"
             className={`color-dot ${color === name ? "is-active" : ""}`}
             style={{ background: ANNOTATION_COLORS[name].value }}
-            title={`${ANNOTATION_COLORS[name].label}高亮`}
-            aria-label={`${ANNOTATION_COLORS[name].label}高亮`}
+            title={t("{color}高亮", { color: t(ANNOTATION_COLORS[name].label) })}
+            aria-label={t("{color}高亮", { color: t(ANNOTATION_COLORS[name].label) })}
             onClick={() => {
               setColor(name);
               onHighlight(name);
@@ -82,7 +83,7 @@ export function SelectionMenu({
       <button
         type="button"
         className="selection-action"
-        title="下划线"
+        title={t("下划线")}
         onClick={() => onUnderline(color)}
       >
         <Icon name="underline" size={16} />
@@ -90,7 +91,7 @@ export function SelectionMenu({
       <button
         type="button"
         className="selection-action"
-        title="删除线"
+        title={t("删除线")}
         onClick={() => onStrikeout(color)}
       >
         <Icon name="strikeout" size={16} />
@@ -98,7 +99,7 @@ export function SelectionMenu({
       <button
         type="button"
         className="selection-action"
-        title="添加便签"
+        title={t("添加便签")}
         onClick={() => onNote(color)}
       >
         <Icon name="note" size={16} />
@@ -106,7 +107,7 @@ export function SelectionMenu({
       <button
         type="button"
         className="selection-action"
-        title="复制文字 ⌘C"
+        title={t("复制文字 ⌘C")}
         onClick={onCopy}
       >
         <Icon name="copy" size={15} />
@@ -114,7 +115,7 @@ export function SelectionMenu({
       <button
         type="button"
         className="selection-action"
-        title="取消"
+        title={t("取消")}
         onClick={onClose}
       >
         <Icon name="close" size={14} />

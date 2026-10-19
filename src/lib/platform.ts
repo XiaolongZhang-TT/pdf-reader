@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { basename, uid } from "./utils";
 
 declare global {
@@ -12,7 +13,7 @@ export const isTauri = () =>
 /** Virtual file registry used by the browser preview (no native APIs there). */
 const browserFiles = new Map<string, File>();
 
-const PDF_FILTER = [{ name: "PDF 文档", extensions: ["pdf"] }];
+const pdfFilter = () => [{ name: t("PDF 文档"), extensions: ["pdf"] }];
 
 export async function pickPdf(): Promise<string[]> {
   if (isTauri()) {
@@ -20,7 +21,7 @@ export async function pickPdf(): Promise<string[]> {
     const result = await open({
       multiple: false,
       directory: false,
-      filters: PDF_FILTER,
+      filters: pdfFilter(),
     });
     if (!result) return [];
     return Array.isArray(result) ? result : [result];
@@ -184,7 +185,7 @@ export async function appVersion(): Promise<string> {
     const { getVersion } = await import("@tauri-apps/api/app");
     return await getVersion();
   } catch {
-    return "0.1.0";
+    return "0.2.0";
   }
 }
 
@@ -223,5 +224,16 @@ export async function toggleFullscreen(): Promise<void> {
     await win.setFullscreen(!full);
   } catch {
     /* noop */
+  }
+}
+
+/** Ask the Rust side to rebuild the native menu in the given UI language. */
+export async function setMenuLanguage(locale: string): Promise<void> {
+  if (!isTauri()) return;
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    await invoke("set_menu_language", { locale });
+  } catch {
+    /* menu rebuild is best-effort */
   }
 }

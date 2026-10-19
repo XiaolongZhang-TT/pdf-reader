@@ -39,7 +39,7 @@ jobs:
         with:
           workspaces: src-tauri -> target
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.14.0
       - uses: actions/setup-node@v4

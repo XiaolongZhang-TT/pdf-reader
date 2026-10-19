@@ -1,0 +1,40 @@
+name: Feature request
+description: Suggest an idea for Paper
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the workflow or pain point behind the request.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like it to work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other apps or workarounds you have tried.
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Mockups, screenshots, links — anything helps.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true

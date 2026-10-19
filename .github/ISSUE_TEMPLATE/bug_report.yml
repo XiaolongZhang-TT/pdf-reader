@@ -1,0 +1,89 @@
+name: Bug report
+description: Report a problem with Paper
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please attach a PDF that
+        reproduces the issue whenever possible — PDF rendering and outline bugs
+        are almost always document-specific.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: Opening this PDF highlights several outline entries at once.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Paper version
+      description: Shown in Settings, or the release tag you downloaded.
+      placeholder: 0.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Windows
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version
+      placeholder: macOS 15.4 / Windows 11 / Ubuntu 24.04
+
+  - type: input
+    id: install
+    attributes:
+      label: How did you install Paper?
+      placeholder: GitHub Release / built from source
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Screenshots, logs, console output or anything else that might help.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I am using the latest release of Paper.
+          required: true
+        - label: I searched existing issues and did not find a duplicate.
+          required: true

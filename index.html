@@ -19,6 +19,12 @@
         } catch (e) {
           document.documentElement.dataset.theme = "light";
         }
+        var ua = navigator.userAgent;
+        document.documentElement.dataset.platform = /mac/i.test(ua)
+          ? "mac"
+          : /win/i.test(ua)
+            ? "windows"
+            : "linux";
       })();
     </script>
   </head>

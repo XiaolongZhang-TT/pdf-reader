@@ -142,8 +142,14 @@ textarea {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border-radius: 11px;
+  border-radius: 0;
   background: var(--window-bg);
+}
+
+/* Only the macOS window is transparent with rounded corners; Windows/Linux
+   use the native window frame. */
+html[data-platform="mac"] .app {
+  border-radius: 11px;
 }
 
 .app-body {
@@ -169,6 +175,11 @@ textarea {
 }
 
 .titlebar.is-tauri {
+  padding-left: 14px;
+}
+
+/* Leave room for the native macOS traffic lights. */
+html[data-platform="mac"] .titlebar.is-tauri {
   padding-left: 86px;
 }
 

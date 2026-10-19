@@ -859,6 +859,7 @@ export default function App() {
           break;
         }
         case "shortcuts":
+        case "about":
           setSettingsOpen(true);
           break;
         case "fullscreen":

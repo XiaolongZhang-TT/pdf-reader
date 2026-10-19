@@ -11,6 +11,12 @@ public/pdfjs
 # local data / dev scratch
 test-assets
 shots
+.tmp-home
+.home
+coverage
+.vitest
+playwright-report
+test-results
 *.local
 .DS_Store
 .idea

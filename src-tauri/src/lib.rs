@@ -1,7 +1,5 @@
 use std::sync::Mutex;
-use tauri::menu::{
-    AboutMetadataBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder,
-};
+use tauri::menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder};
 use tauri::{Emitter, Manager, State};
 
 /// Files that were handed to the app before the webview was ready to listen
@@ -45,7 +43,7 @@ fn reveal_in_finder(path: String) -> Result<(), String> {
             .arg(&path)
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
     #[cfg(target_os = "windows")]
     {
@@ -53,7 +51,7 @@ fn reveal_in_finder(path: String) -> Result<(), String> {
             .arg(format!("/select,{path}"))
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
     #[cfg(all(unix, not(target_os = "macos")))]
     {
@@ -65,34 +63,36 @@ fn reveal_in_finder(path: String) -> Result<(), String> {
             .arg(parent)
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
 }
 
+/// Cross-platform native menu bar. Only platform-independent predefined items
+/// are used (copy / paste / select all); everything else is a custom item so
+/// the app also runs on Windows and Linux where some predefined items are
+/// unsupported by the underlying menu implementation.
+fn build_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<tauri::menu::Menu<R>> {
+    let about_item = MenuItemBuilder::with_id("about", "关于 Paper").build(app)?;
+    let quit_item = MenuItemBuilder::with_id("quit", "退出 Paper")
+        .accelerator("CmdOrCtrl+Q")
+        .build(app)?;
 
-/// A native macOS menu bar so the app feels at home and shortcuts behave
-/// consistently. Actions are forwarded to the webview as `menu-action` events.
-fn build_menu<R: tauri::Runtime>(
-    app: &tauri::AppHandle<R>,
-) -> tauri::Result<tauri::menu::Menu<R>> {
-    let about_metadata = AboutMetadataBuilder::new()
-        .name(Some("Paper"))
-        .version(Some(env!("CARGO_PKG_VERSION")))
-        .comments(Some("安静、专注的 PDF 阅读器"))
-        .build();
-
+    #[cfg(target_os = "macos")]
     let app_menu = SubmenuBuilder::new(app, "Paper")
-        .item(&PredefinedMenuItem::about(
-            app,
-            Some("关于 Paper"),
-            Some(about_metadata),
-        )?)
+        .item(&about_item)
         .separator()
         .item(&PredefinedMenuItem::hide(app, Some("隐藏 Paper"))?)
         .item(&PredefinedMenuItem::hide_others(app, Some("隐藏其他"))?)
         .item(&PredefinedMenuItem::show_all(app, Some("显示全部"))?)
         .separator()
-        .item(&PredefinedMenuItem::quit(app, Some("退出 Paper"))?)
+        .item(&quit_item)
+        .build()?;
+
+    #[cfg(not(target_os = "macos"))]
+    let app_menu = SubmenuBuilder::new(app, "Paper")
+        .item(&about_item)
+        .separator()
+        .item(&quit_item)
         .build()?;
 
     let file_menu = SubmenuBuilder::new(app, "文件")
@@ -107,7 +107,11 @@ fn build_menu<R: tauri::Runtime>(
                 .build(app)?,
         )
         .separator()
-        .item(&PredefinedMenuItem::close_window(app, Some("关闭窗口"))?)
+        .item(
+            &MenuItemBuilder::with_id("close_window", "关闭窗口")
+                .accelerator("CmdOrCtrl+W")
+                .build(app)?,
+        )
         .build()?;
 
     let edit_menu = SubmenuBuilder::new(app, "编辑")
@@ -170,8 +174,8 @@ fn build_menu<R: tauri::Runtime>(
         .build()?;
 
     let window_menu = SubmenuBuilder::new(app, "窗口")
-        .item(&PredefinedMenuItem::minimize(app, Some("最小化"))?)
-        .item(&PredefinedMenuItem::maximize(app, Some("缩放"))?)
+        .item(&MenuItemBuilder::with_id("minimize", "最小化").build(app)?)
+        .item(&MenuItemBuilder::with_id("maximize", "缩放").build(app)?)
         .build()?;
 
     let help_menu = SubmenuBuilder::new(app, "帮助")
@@ -215,8 +219,32 @@ pub fn run() {
             let menu = build_menu(&app.handle().clone())?;
             app.set_menu(menu)?;
             app.on_menu_event(|app, event| {
-                let id = event.id().as_ref().to_string();
-                let _ = app.emit("menu-action", id);
+                let id = event.id().as_ref();
+                match id {
+                    "quit" => app.exit(0),
+                    "close_window" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.close();
+                        }
+                    }
+                    "minimize" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.minimize();
+                        }
+                    }
+                    "maximize" => {
+                        if let Some(window) = app.get_webview_window("main") {
+                            if window.is_maximized().unwrap_or(false) {
+                                let _ = window.unmaximize();
+                            } else {
+                                let _ = window.maximize();
+                            }
+                        }
+                    }
+                    _ => {
+                        let _ = app.emit("menu-action", id.to_string());
+                    }
+                }
             });
             let files = collect_cli_files();
             if !files.is_empty() {

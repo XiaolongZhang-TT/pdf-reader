@@ -48,6 +48,7 @@ Issues that are especially relevant:
 - Builds are produced by GitHub Actions from this repository
   (`.github/workflows/release.yml`).
 - macOS builds are **unsigned and not notarized**; they are distributed as-is
-  from the Releases page. Verify the checksum published with each release.
+  from the Releases page. Each release publishes SHA-256 checksum files
+  (`checksums-macOS.txt`, `checksums-Windows.txt`, `checksums-Linux.txt`).
 - Windows and Linux builds are unsigned as well.
 - No build secrets are stored in the repository.

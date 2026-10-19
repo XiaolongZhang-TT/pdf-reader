@@ -27,6 +27,8 @@
 | Linux（x64） | `.AppImage` / `.deb` | AppImage 需要先 `chmod +x` |
 
 > 支持状态：macOS 已完成完整验证；Windows / Linux 由 CI 构建并做编译检查，界面使用系统原生窗口边框，欢迎反馈问题。
+>
+> 每个 Release 附带对应平台的 `checksums-*.txt`（SHA-256），可用于校验下载文件。
 
 ## 功能
 

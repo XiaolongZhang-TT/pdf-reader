@@ -28,7 +28,8 @@ Get the latest build from [Releases](https://github.com/XiaolongZhang-TT/pdf-rea
 | Linux (x64) | `.AppImage` / `.deb` | Run `chmod +x` on the AppImage first |
 
 > Status: macOS is fully tested. Windows and Linux are built and compile-checked
-> in CI and use the native window frame — feedback is very welcome.
+> in CI and use the native window frame — feedback is very welcome. Each release
+> ships SHA-256 checksum files (`checksums-*.txt`) for the installers.
 
 ## Features
 

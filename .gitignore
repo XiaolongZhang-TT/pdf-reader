@@ -17,6 +17,7 @@ coverage
 .vitest
 playwright-report
 test-results
+checksums-*.txt
 *.local
 .DS_Store
 .idea

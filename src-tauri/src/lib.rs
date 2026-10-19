@@ -257,6 +257,13 @@ pub fn run() {
         .expect("error while building tauri application");
 
     app.run(|app_handle, event| {
+        // `app_handle` and `event` are only used in the macOS branch, but they
+        // must stay named for the shared closure signature.
+        #[cfg(not(target_os = "macos"))]
+        {
+            let _ = (&app_handle, &event);
+        }
+
         #[cfg(target_os = "macos")]
         if let tauri::RunEvent::Opened { urls } = &event {
             let mut files = Vec::new();

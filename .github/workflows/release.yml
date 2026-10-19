@@ -64,3 +64,11 @@ jobs:
             **Linux:** make the AppImage executable with `chmod +x` before running.
           releaseDraft: false
           prerelease: false
+
+      - name: Generate checksums
+        run: node scripts/checksums.mjs
+
+      - name: Attach checksums to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.ref_name }}" "checksums-${{ runner.os }}.txt" --clobber
